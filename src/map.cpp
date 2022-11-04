@@ -2584,7 +2584,7 @@ void Map::TimedDrains()
 
 		for (Character* character : this->characters)
 		{
-			if (character->nowhere || character->IsHideInvisible())
+			if (character->nowhere || character->IsHideInvisible() || character->race==(6))
 				continue;
 
 			int amount = static_cast<int>(character->maxhp * hpdrain_damage);
@@ -2598,7 +2598,7 @@ void Map::TimedDrains()
 
 		for (Character* character : this->characters)
 		{
-			if (character->nowhere || character->IsHideInvisible())
+			if (character->nowhere || character->IsHideInvisible() || character->race==(6))
 				continue;
 
 			if (hpdrain_damage > 0.0)
@@ -2614,7 +2614,7 @@ void Map::TimedDrains()
 
 				for (Character* other : this->characters)
 				{
-					if (other->nowhere || other->IsHideInvisible())
+					if (other->nowhere || other->IsHideInvisible() || character->race==(6))
 						continue;
 
 					int damage = damage_map[ii++];
