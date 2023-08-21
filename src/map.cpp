@@ -2584,10 +2584,31 @@ void Map::TimedDrains()
 
 		for (Character* character : this->characters)
 		{
-			if (character->nowhere || character->IsHideInvisible() || character->race==(6))
+			if (character->nowhere || character->IsHideInvisible())
 				continue;
 
-			int amount = static_cast<int>(character->maxhp * hpdrain_damage);
+            //Fish Race
+            if (character->race==(6) && character->map->id ==(255))
+                continue;
+            if (character->race==(6) && character->map->id ==(258))
+                continue;
+            if (character->race==(6) && character->map->id ==(259))
+                continue;
+
+            //Bird Race
+            if (character->race==(10) && character->map->id ==(73))
+                continue;
+            if (character->race==(10) && character->map->id ==(71))
+                continue;
+            if (character->race==(10) && character->map->id ==(252))
+                continue;
+            ////////////////////////////////////TODO/////////////////////////////////////
+            //Orc Race
+            //Skelly Race
+            //Devil Race
+            //Panda Race
+
+			int amount = character->maxhp * hpdrain_damage;
 			amount = std::max(std::min(amount, int(character->hp - 1)), 0);
 			character->hp -= amount;
 
@@ -2598,8 +2619,24 @@ void Map::TimedDrains()
 
 		for (Character* character : this->characters)
 		{
-			if (character->nowhere || character->IsHideInvisible() || character->race==(6))
+			if (character->nowhere || character->IsHideInvisible())
 				continue;
+
+            //Fish Race
+            if (character->race==(6) && character->map->id ==(255))
+                continue;
+            if (character->race==(6) && character->map->id ==(258))
+                continue;
+            if (character->race==(6) && character->map->id ==(259))
+                continue;
+
+            //Bird Race
+            if (character->race==(10) && character->map->id ==(73))
+                continue;
+            if (character->race==(10) && character->map->id ==(71))
+                continue;
+            if (character->race==(10) && character->map->id ==(252))
+                continue;
 
 			if (hpdrain_damage > 0.0)
 			{
@@ -2614,8 +2651,25 @@ void Map::TimedDrains()
 
 				for (Character* other : this->characters)
 				{
-					if (other->nowhere || other->IsHideInvisible() || character->race==(6))
+					if (other->nowhere || other->IsHideInvisible())
 						continue;
+
+                    //Fish Race
+                    if (character->race==(6) && character->map->id ==(255))
+                        continue;
+                    if (character->race==(6) && character->map->id ==(258))
+                        continue;
+                    if (character->race==(6) && character->map->id ==(259))
+                        continue;
+
+
+                    //Bird Race
+                    if (character->race==(10) && character->map->id ==(73))
+                        continue;
+                    if (character->race==(10) && character->map->id ==(71))
+                        continue;
+                    if (character->race==(10) && character->map->id ==(252))
+                        continue;
 
 					int damage = damage_map[ii++];
 
@@ -2623,7 +2677,7 @@ void Map::TimedDrains()
 						continue;
 
 					builder.AddShort(other->PlayerID());
-					builder.AddChar(static_cast<unsigned char>(util::clamp<int>(static_cast<int>(double(other->hp) / double(other->maxhp) * 100.0), 0, 100)));
+					builder.AddChar(util::clamp<int>(double(other->hp) / double(other->maxhp) * 100.0, 0, 100));
 					builder.AddShort(damage);
 				}
 
