@@ -17,7 +17,7 @@
             ],
             "defines": [
                 "DATABASE_SQLSERVER",
-                "_WIN32" // defining _WIN32 here so intellisense works as expected
+                "_WIN32"
             ],
             "compilerPath": "\"${myCompilerPath}cl.exe\"",
             "cStandard": "c11",
@@ -44,7 +44,7 @@
             "defines": [
                 "DATABASE_SQLSERVER",
                 "DATABASE_MYSQL",
-                "_WIN32" // defining _WIN32 here so intellisense works as expected
+                "_WIN32"
             ],
             "compilerPath": "\"${myCompilerPath}cl.exe\"",
             "cStandard": "c11",
@@ -70,7 +70,7 @@
             ],
             "defines": [
                 "DATABASE_SQLITE",
-                "_WIN32" // defining _WIN32 here so intellisense works as expected
+                "_WIN32"
             ],
             "compilerPath": "\"${myCompilerPath}cl.exe\"",
             "cStandard": "c11",
@@ -169,7 +169,7 @@
             "defines": [
                 "DATABASE_SQLSERVER",
                 "DEBUG",
-                "_WIN32" // defining _WIN32 here so intellisense works as expected
+                "_WIN32"
             ],
             "compilerPath": "\"${myCompilerPath}cl.exe\"",
             "cStandard": "c11",
@@ -197,7 +197,7 @@
                 "DATABASE_SQLSERVER",
                 "DATABASE_MYSQL",
                 "DEBUG",
-                "_WIN32" // defining _WIN32 here so intellisense works as expected
+                "_WIN32"
             ],
             "compilerPath": "\"${myCompilerPath}cl.exe\"",
             "cStandard": "c11",
@@ -224,7 +224,7 @@
             "defines": [
                 "DATABASE_SQLITE",
                 "DEBUG",
-                "_WIN32" // defining _WIN32 here so intellisense works as expected
+                "_WIN32"
             ],
             "compilerPath": "\"${myCompilerPath}cl.exe\"",
             "cStandard": "c11",
@@ -312,7 +312,8 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
             },
-            "intelliSenseMode": "gcc-x64"
+            "intelliSenseMode": "gcc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],
     "version": 4
