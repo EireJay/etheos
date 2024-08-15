@@ -575,14 +575,61 @@ bool Quest_Context::DoAction(const EOPlus::Action& action)
 
 		this->character->exp = std::min(this->character->exp, int(this->character->map->world->config["MaxExp"]));
 
+		// Define a map that associates each race with its corresponding "StatPerLevel" value
+		std::map<int, int> race_stat_map = {
+			{0, 3},   // race 0 gets 3 "StatPerLevel" points
+			{1, 3},   // race 1 gets 3 "StatPerLevel" points
+			{2, 3},   // race 2 gets 3 "StatPerLevel" points
+			{3, 3},   // race 3 gets 3 "StatPerLevel" points
+			{4, 3},   // race 4 gets 3 "StatPerLevel" points
+			{5, 3},   // race 5 gets 3 "StatPerLevel" points
+			{6, 3},   // race 6 gets 3 "StatPerLevel" points
+			{7, 3},   // race 7 gets 3 "StatPerLevel" points
+			{8, 3},   // race 8 gets 3 "StatPerLevel" points
+			{9, 3},   // race 9 gets 3 "StatPerLevel" points
+			{10, 3}   // race 10 gets 3 "StatPerLevel" points
+		};
+
 		while (this->character->level < int(this->character->map->world->config["MaxLevel"])
-		 && this->character->exp >= this->character->map->world->exp_table[this->character->level+1])
+			&& this->character->exp >= this->character->map->world->exp_table[this->character->level+1])
 		{
 			level_up = true;
 			++this->character->level;
-			this->character->statpoints += int(this->character->map->world->config["StatPerLevel"]);
+			
+
+			// Retrieve the "StatPerLevel" value for the current race
+			int race_stat = race_stat_map[this->character->race];
+
+			// Add the "StatPerLevel" value to the character's "statpoints" attribute
+			this->character->statpoints += race_stat;
+
 			this->character->skillpoints += int(this->character->map->world->config["SkillPerLevel"]);
 			this->character->CalculateStats();
+			// Define a map that associates each race with its corresponding "StatPerLevel" values for each stat
+			std::map<int, std::map<std::string, int>> race1_stat_map = {
+				{0, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},   // race 0
+				{1, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},   // race 1
+				{2, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},   // race 2
+				{3, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 1}, {"cha", 0}}},   // race 3
+				{4, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},   // race 4
+				{5, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},   // race 5
+				{6, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},   // race 6
+				{7, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},   // race 7
+				{8, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},   // race 8
+				{9, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},   // race 9
+				{10, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}}   // race 10
+			};
+
+			// Retrieve the "StatPerLevel" values for the current race
+			std::map<std::string, int> race1_stats = race1_stat_map[this->character->race];
+
+			// Add the "StatPerLevel" values to the character's "statpoints" attribute for each stat
+			character->str += race1_stats["str"]; // add the "str" "StatPerLevel" value to the character's str
+			character->intl += race1_stats["intl"]; 
+			character->wis += race1_stats["wis"]; 
+			character->agi += race1_stats["agi"]; 
+			character->con += race1_stats["con"]; 
+			character->cha += race1_stats["cha"]; 
 		}
 
 		PacketBuilder builder(PACKET_RECOVER, PACKET_REPLY, 11);

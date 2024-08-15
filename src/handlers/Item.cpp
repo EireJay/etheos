@@ -48,7 +48,7 @@ void Item_Use(Character *character, PacketReader &reader)
 			}
 		};
 
-		switch (item.type)
+				switch (item.type)
 		{
 			case EIF::Teleport:
 			{
@@ -287,12 +287,49 @@ void Item_Use(Character *character, PacketReader &reader)
 
 				character->exp = std::min(character->exp, static_cast<int>(character->map->world->config["MaxExp"]));
 
+				std::map<int, int> race_statpoints = {
+					{0, 3},   // race 0 gets 3 stat points per level
+					{1, 3},   // race 1 gets 3 stat points per level
+					{2, 3},   // race 2 gets 3 stat points per level
+					{3, 3},   // race 3 gets 10 stat points per level
+					{4, 3},   // race 4 gets 3 stat points per level
+					{5, 3},   // race 5 gets 3 stat points per level
+					{6, 3},   // race 6 gets 3 stat points per level
+					{7, 3},   // race 7 gets 3 stat points per level
+					{8, 3},   // race 8 gets 3 stat points per level
+					{9, 3},   // race 9 gets 3 stat points per level
+					{10, 3}   // race 10 gets 3 stat points per level
+				};
+
 				while (character->level < static_cast<int>(character->map->world->config["MaxLevel"])
-				 && character->exp >= character->map->world->exp_table[character->level+1])
+					 && character->exp >= character->map->world->exp_table[character->level+1])
 				{
 					level_up = true;
 					++character->level;
-					character->statpoints += static_cast<int>(character->map->world->config["StatPerLevel"]);
+
+					std::map<int, std::map<std::string, int>> race1_statpoints = {
+					{0, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},
+					{1, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},
+					{2, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},
+					{3, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},
+					{4, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},
+					{5, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},
+					{6, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},
+					{7, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},
+					{8, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},
+					{9, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}},
+					{10, {{"str", 0}, {"intl", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}}
+					};
+
+					int race = character->race;  // assuming race is stored in character->race
+					character->statpoints += race_statpoints[race];
+					std::map<std::string, int> statToStatPerLevel = race1_statpoints[race]; // get the map of stats and their corresponding "StatPerLevel" values for the character's race
+					character->str += statToStatPerLevel["str"]; // add the "str" "StatPerLevel" value to the character's str
+					character->intl += statToStatPerLevel["int"]; // add the "int" "StatPerLevel" value to the character's int_
+					character->wis += statToStatPerLevel["wis"]; // add the "wis" "StatPerLevel" value to the character's wis
+					character->agi += statToStatPerLevel["agi"]; // add the "agi" "StatPerLevel" value to the character's agi
+					character->con += statToStatPerLevel["con"]; // add the "con" "StatPerLevel" value to the character's con
+					character->cha += statToStatPerLevel["cha"]; // add the "cha" "StatPerLevel" value to the character's cha
 					character->skillpoints += static_cast<int>(character->map->world->config["SkillPerLevel"]);
 					character->CalculateStats();
 				}
@@ -334,6 +371,7 @@ void Item_Use(Character *character, PacketReader &reader)
 			break;
 
 			default:
+			
 				return;
 		}
 	}

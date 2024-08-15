@@ -68,7 +68,12 @@ enum Skin : unsigned char
 	SKIN_ORC = 3,
 	SKIN_SKELETON = 4,
 	SKIN_PANDA = 5,
-	SKIN_FISH = 6
+	SKIN_FISH = 6,
+	SKIN_FISH1 = 7,
+	SKIN_LIZARD = 8,
+	SKIN_FOX = 9,
+	SKIN_BIRD = 10,
+	SKIN_DEVIL = 11
 };
 
 enum PaperdollIcon : unsigned char

@@ -248,7 +248,7 @@ int eoserv_main(int argc, char *argv[])
 #ifdef WIN32
 	eoserv_close_event = CreateEvent(NULL, FALSE, FALSE, NULL);
 
-	SetConsoleTitle("EOSERV");
+	SetConsoleTitle("ETHEOS");
 
 	if (!SetConsoleCtrlHandler(static_cast<PHANDLER_ROUTINE>(eoserv_win_event_handler), TRUE))
 	{
@@ -294,6 +294,7 @@ int eoserv_main(int argc, char *argv[])
 ===============██╔══╝     ██║   ██╔══██║██╔══╝  ██║   ██║╚════██║===============\n\
  Copyright (c) ███████╗   ██║   ██║  ██║███████╗╚██████╔╝███████║ Modified by   \n\
 Julian Smythe  ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚══════╝ Ethan Moffat  \n\
+                                                                  & Jason HHanna \n\
 \n");
 #ifdef DEBUG
 		Console::Wrn("This is a debug build and shouldn't be used for live servers.");
@@ -390,12 +391,14 @@ Julian Smythe  ╚══════╝   ╚═╝   ╚═╝  ╚═╝╚═
 				Database_Result ban_count = server->world->db->Query("SELECT COUNT(1) AS `count` FROM `bans`");
 				Database_Result ban_active_count = server->world->db->Query("SELECT COUNT(1) AS `count` FROM `bans` WHERE `expires` <= # AND `expires` <> 0", int(std::time(0)));
 				Database_Result ban_perm_count = server->world->db->Query("SELECT COUNT(1) AS `count` FROM `bans` WHERE `expires` = 0");
+				Database_Result reports = server->world->db->Query("SELECT COUNT(1) AS `count` FROM `reports`");
 
 				Console::Out("Database info:");
 				Console::Out("  Accounts:   %i", int(acc_count.front()["count"]));
 				Console::Out("  Characters: %i (%i staff)", int(character_count.front()["count"]), int(admin_character_count.front()["count"]));
 				Console::Out("  Guilds:     %i", int(guild_count.front()["count"]));
 				Console::Out("  Bans:       %i (%i expired, %i permanent)", int(ban_count.front()["count"]), int(ban_active_count.front()["count"]), int(ban_perm_count.front()["count"]));
+				Console::Out("  Reports:    %i", int(reports.front()["count"]));
 
 				server->world->UpdateAdminCount(int(admin_character_count.front()["count"]));
 

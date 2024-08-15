@@ -205,13 +205,13 @@ void eoserv_config_validate_config(Config& config)
 	eoserv_config_default(config, "WeddingMusic"       , 40);
 	eoserv_config_default(config, "MaxHairStyle"       , 20);
 	eoserv_config_default(config, "MaxHairColor"       , 9);
-	eoserv_config_default(config, "MaxSkin"            , 6);
+	eoserv_config_default(config, "MaxSkin"            , 10);
 	eoserv_config_default(config, "CreateMinHairStyle" , 1);
 	eoserv_config_default(config, "CreateMaxHairStyle" , 20);
 	eoserv_config_default(config, "CreateMinHairColor" , 0);
 	eoserv_config_default(config, "CreateMaxHairColor" , 9);
 	eoserv_config_default(config, "CreateMinSkin"      , 0);
-	eoserv_config_default(config, "CreateMaxSkin"      , 3);
+	eoserv_config_default(config, "CreateMaxSkin"      , 10);
 	eoserv_config_default(config, "DefaultBanLength"   , "2h");
 	eoserv_config_default(config, "LimitDamage"        , true);
 	eoserv_config_default(config, "DeathRecover"       , 0.5);

@@ -509,6 +509,13 @@ Character::Character(std::string name, World *world)
 	{
 		this->nointeract = static_cast<int>(world->config["NoInteractDefault"]);
 	}
+
+	this->title_cert_used = false;
+
+	this->last_map = 0;
+  this->last_x = 0;
+  this->last_y = 0;
+
 }
 
 unsigned int Character::PlayerID() const
@@ -2064,6 +2071,16 @@ void Character::Send(const PacketBuilder &builder)
 
 void Character::Logout()
 {
+	if(this->title_cert_used){
+        this->AddItem(static_cast<int>(this->SourceWorld()->config["TitleCertID"]), 1);
+    }
+		
+    if(this->last_map > 0){
+        this->mapid = this->last_map;
+        this->x = this->last_x;
+        this->y = this->last_y;
+    }
+
 	if (!this->online)
 	{
 		return;
@@ -2122,6 +2139,19 @@ void Character::Logout()
 	this->Save();
 
 	this->world->Logout(this);
+}
+
+void Character::JunkItem(short id,int amt){
+
+    if(this->DelItem(id, amt)){
+        PacketBuilder reply(PACKET_ITEM, PACKET_JUNK, 11);
+        reply.AddShort(id);
+        reply.AddThree(amt); // Overflows, does it matter?
+        reply.AddInt(this->HasItem(id));
+        //reply.AddChar(this->weight);
+        //reply.AddChar(this->maxweight);
+        this->Send(reply);
+    }
 }
 
 void Character::Save()

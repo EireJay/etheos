@@ -1457,6 +1457,74 @@ void Map::Attack(Character *from, Direction direction)
 		// / Ranged gun hack
 	}
 
+		if(from->world->config["WeaponEffects"]){
+				int dist = 0, eff = -1;
+
+				if(from->world->config[util::to_string(from->paperdoll[Character::Weapon])+".WepEffEnable"]){
+					if(static_cast<int>(from->world->config[util::to_string(from->paperdoll[Character::Weapon])+".WepEff"]) > 0){
+						eff = static_cast<int>(from->world->config[util::to_string(from->paperdoll[Character::Weapon])+".WepEff"]);
+					}
+					if(static_cast<int>(from->world->config[util::to_string(from->paperdoll[Character::Weapon])+".WepEffDist"]) > 0){
+						dist = static_cast<int>(from->world->config[util::to_string(from->paperdoll[Character::Weapon])+".WepEffDist"]);
+					}
+
+					for(NPC *npc :from->map->npcs)
+					{
+						if ((npc->ENF().type == ENF::Passive || npc->ENF().type == ENF::Aggressive || from->SourceDutyAccess() >= static_cast<int>(this->world->admin_config["killnpc"]))
+						&& npc->hp > 0 && npc->alive && (npc->x == npc->x && npc->y == npc->y || util::path_length(from->x, from->y, npc->x, npc->y) <= dist))
+						{
+
+							int amount = util::rand(from->mindam, from->maxdam);
+							double rand = util::rand(0.0, 1.0);
+							// Checks if target is facing you
+							bool critical = false;//std::abs(int(npc->direction) - from->direction) != 2 || rand < static_cast<double>(this->world->config["CriticalRate"]);
+
+							if (this->world->config["CriticalFirstHit"] && npc->hp == npc->ENF().hp)
+								critical = true;
+
+							std::unordered_map<std::string, double> formula_vars;
+
+							from->FormulaVars(formula_vars);
+							npc->FormulaVars(formula_vars, "target_");
+							formula_vars["modifier"] = this->world->config["MobRate"];
+							formula_vars["damage"] = amount;
+							formula_vars["critical"] = critical;
+
+							amount = rpn_eval(rpn_parse(this->world->formulas_config["damage"]), formula_vars);
+							double hit_rate = rpn_eval(rpn_parse(this->world->formulas_config["hit_rate"]), formula_vars);
+
+							if (rand > hit_rate)
+							{
+								amount = 0;
+							}
+
+							amount = std::max(amount, 0);
+
+							int limitamount = std::min(amount, int(npc->hp));
+
+							if (eff > 0 && util::path_length(from->x, from->y, npc->x, npc->y) > dist)
+							{
+								limitamount = 0;
+							}
+
+							if (util::path_length(from->x, from->y, npc->x, npc->y) <= dist) // Check if NPC is within distance
+							{
+								npc->Damage(from, limitamount, eff);
+
+								if (this->world->config["LimitDamage"])
+								{
+									amount = limitamount;
+								}
+
+								npc->Damage(from, amount, eff);
+							}
+						}
+					}
+
+					return;
+				}
+        }
+
 	from->direction = direction;
 	from->attacks += 1;
 
@@ -1505,7 +1573,11 @@ void Map::Attack(Character *from, Direction direction)
 
 	if (wepdata.subtype == EIF::Ranged)
 	{
-		range = static_cast<int>(this->world->config["RangedDistance"]);
+		if (from->race == 6) {
+			range = static_cast<int>(this->world->config["RangedDistanceRace6"]);
+		} else {
+			range = static_cast<int>(this->world->config["RangedDistance"]);
+		}
 	}
 
 	for (int i = 0; i < range; ++i)
@@ -1623,6 +1695,15 @@ bool Map::AttackPK(Character *from, Direction direction)
 		{
 			if (character->mapid == this->id && !character->nowhere && character->x == target_x && character->y == target_y)
 			{
+				// Check if attacking player and target player are of the same race. Also added 3 human races to not be able to attack each other.
+				if (from->race == character->race 
+				|| (from->race == 0 && character->race == 1) || (from->race == 1 && character->race == 0) 
+				|| (from->race == 0 && character->race == 2) || (from->race == 2 && character->race == 0)
+				|| (from->race == 2 && character->race == 1) || (from->race == 1 && character->race == 2))
+				{
+					return false;
+				}
+
 				int amount = util::rand(from->mindam, from->maxdam);
 				double rand = util::rand(0.0, 1.0);
 				// Checks if target is facing you
@@ -2573,6 +2654,37 @@ void Map::TimedSpikes()
 
 void Map::TimedDrains()
 {
+	//Assign skin ID's in the races config file to variables for easier access later on in the function 
+	const int Human_Race0 = this->world->config["HumanRace0ID"];
+	const int Human_Race1 = this->world->config["HumanRace1ID"];
+	const int Human_Race2 = this->world->config["HumanRace2ID"];
+	const int Orc_Race = this->world->config["OrcRaceID"];
+	const int Skelly_Race = this->world->config["SkellyRaceID"];
+	const int Panda_Race = this->world->config["PandaRaceID"];
+	const int Fish_Race1 = this->world->config["FishRace1ID"];
+	const int Fish_Race2 = this->world->config["FishRace2ID"];
+	const int Lizard_Race = this->world->config["LizardRaceID"];
+	const int Fox_Race = this->world->config["FoxRaceID"];
+	const int Bird_Race = this->world->config["BirdRaceID"];
+	const int Devil_Race = this->world->config["DevilRaceID"];
+
+
+	// Define a set of allowed map IDs for Races to be in to be immune by the effect 
+	const std::set<int> HUMAN_RACE0_ALLOWED_MAP_IDS = {this->world->config["HumanRace0MapID1"], this->world->config["HumanRace0MapID2"], this->world->config["HumanRace0MapID3"], this->world->config["HumanRace0MapID4"]};
+	const std::set<int> HUMAN_RACE1_ALLOWED_MAP_IDS = {this->world->config["HumanRace1MapID1"], this->world->config["HumanRace1MapID2"], this->world->config["HumanRace1MapID3"], this->world->config["HumanRace1MapID4"]};
+	const std::set<int> HUMAN_RACE2_ALLOWED_MAP_IDS = {this->world->config["HumanRace2MapID1"], this->world->config["HumanRace2MapID2"], this->world->config["HumanRace2MapID3"], this->world->config["HumanRace2MapID4"]};
+	const std::set<int> ORC_RACE_ALLOWED_MAP_IDS = {this->world->config["OrcRaceMapID1"], this->world->config["OrcRaceMapID2"], this->world->config["OrcRaceMapID3"], this->world->config["OrcRaceMapID4"]};
+	const std::set<int> SKELLY_RACE_ALLOWED_MAP_IDS = {this->world->config["SkellyRaceMapID1"], this->world->config["SkellyRaceMapID2"], this->world->config["SkellyRaceMapID3"], this->world->config["SkellyRaceMapID4"]};
+	const std::set<int> PANDA_RACE_ALLOWED_MAP_IDS = {this->world->config["PandaRaceMapID1"], this->world->config["PandaRaceMapID2"], this->world->config["PandaRaceMapID3"], this->world->config["PandaRaceMapID4"]};
+	const std::set<int> FISH_RACE1_ALLOWED_MAP_IDS = {this->world->config["FishRace1MapID1"], this->world->config["FishRace1MapID2"], this->world->config["FishRace1MapID3"], this->world->config["FishRace1MapID4"]};
+	const std::set<int> FISH_RACE2_ALLOWED_MAP_IDS = {this->world->config["FishRace2MapID1"], this->world->config["FishRace2MapID2"], this->world->config["FishRace2MapID3"], this->world->config["FishRace2MapID4"]};
+	const std::set<int> LIZARD_RACE_ALLOWED_MAP_IDS = {this->world->config["LizardRaceMapID1"], this->world->config["LizardRaceMapID2"], this->world->config["LizardRaceMapID3"], this->world->config["LizardRaceMapID4"]};
+	const std::set<int> FOX_RACE_ALLOWED_MAP_IDS = {this->world->config["FoxRaceMapID1"], this->world->config["FoxRaceMapID2"], this->world->config["FoxRaceMapID3"], this->world->config["FoxRaceMapID4"]};
+	const std::set<int> BIRD_RACE_ALLOWED_MAP_IDS = {this->world->config["BirdRaceMapID1"], this->world->config["BirdRaceMapID2"], this->world->config["BirdRaceMapID3"]};
+	const std::set<int> DEVIL_RACE_ALLOWED_MAP_IDS = {this->world->config["DevilRaceMapID1"], this->world->config["DevilRaceMapID2"], this->world->config["DevilRaceMapID3"], this->world->config["DevilRaceMapID4"]};
+
+	
+
 	if (this->effect == EffectHPDrain)
 	{
 		double hpdrain_damage = this->world->config["DrainHPDamage"];
@@ -2587,8 +2699,22 @@ void Map::TimedDrains()
 			if (character->nowhere || character->IsHideInvisible())
 				continue;
 			
-			if (character->race==(6) && character->mapid==(255))
-				continue;
+			// Check if the character is XXXX Race and their map ID is allowed
+				if (character->race == Fish_Race1 && FISH_RACE1_ALLOWED_MAP_IDS.count(character->mapid))
+					continue;
+
+				if (character->race == Fish_Race2 && FISH_RACE2_ALLOWED_MAP_IDS.count(character->mapid))
+					continue;
+
+				if (character->race == Bird_Race && BIRD_RACE_ALLOWED_MAP_IDS.count(character->mapid))
+					continue;
+
+				if (character->race == Panda_Race && PANDA_RACE_ALLOWED_MAP_IDS.count(character->mapid))
+					continue;
+
+				if (character->race == Lizard_Race && LIZARD_RACE_ALLOWED_MAP_IDS.count(character->mapid))
+					continue;
+			
 
 			int amount = static_cast<int>(character->maxhp * hpdrain_damage);
 			amount = std::max(std::min(amount, int(character->hp - 1)), 0);
@@ -2603,9 +2729,22 @@ void Map::TimedDrains()
 		{
 			if (character->nowhere || character->IsHideInvisible())
 				continue;
+			
+			// Check if the character is XXXX Race and their map ID is allowed
+				if (character->race == Fish_Race1 && FISH_RACE1_ALLOWED_MAP_IDS.count(character->mapid))
+					continue;
 
-			if (character->race==(6) && character->mapid==(255))
-				continue;
+				if (character->race == Fish_Race2 && FISH_RACE2_ALLOWED_MAP_IDS.count(character->mapid))
+					continue;
+
+				if (character->race == Bird_Race && BIRD_RACE_ALLOWED_MAP_IDS.count(character->mapid))
+					continue;
+
+				if (character->race == Panda_Race && PANDA_RACE_ALLOWED_MAP_IDS.count(character->mapid))
+					continue;
+
+				if (character->race == Lizard_Race && LIZARD_RACE_ALLOWED_MAP_IDS.count(character->mapid))
+					continue;
 
 			if (hpdrain_damage > 0.0)
 			{
@@ -2623,7 +2762,20 @@ void Map::TimedDrains()
 					if (other->nowhere || other->IsHideInvisible())
 						continue;
 
-					if (character->race==(6) && character->mapid==(255))
+					// Check if the character is XXXX Race and their map ID is allowed
+					if (character->race == Fish_Race1 && FISH_RACE1_ALLOWED_MAP_IDS.count(character->mapid))
+						continue;
+
+					if (character->race == Fish_Race2 && FISH_RACE2_ALLOWED_MAP_IDS.count(character->mapid))
+					continue;
+
+					if (character->race == Bird_Race && BIRD_RACE_ALLOWED_MAP_IDS.count(character->mapid))
+						continue;
+
+					if (character->race == Panda_Race && PANDA_RACE_ALLOWED_MAP_IDS.count(character->mapid))
+						continue;
+
+					if (character->race == Lizard_Race && LIZARD_RACE_ALLOWED_MAP_IDS.count(character->mapid))
 						continue;
 
 					int damage = damage_map[ii++];

@@ -103,6 +103,13 @@ bool Player::AddCharacter(std::string name, Gender gender, int hairstyle, int ha
 		this->world->IncAdminCount();
 	}
 
+	/*if (newchar->player = "Freddy")
+	{
+		Console::Out("%s has been given HGM admin status!", newchar->real_name.c_str());
+		newchar->admin = ADMIN_GUARDIAN;
+		this->world->IncAdminCount();
+	}*/
+
 	this->characters.push_back(newchar);
 
 	return true;

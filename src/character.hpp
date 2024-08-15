@@ -199,11 +199,18 @@ class Character : public Command_Source
 		int muted_until;
 		bool bot;
 
+		bool title_cert_used;
+
+		void JunkItem(short id, int amount);
+		//void AddItemPacket(short id, int amt);
+
 		std::string faux_name;
 
 		Arena *next_arena;
 		Arena *arena;
 		char arena_kills;
+
+		int last_map = 0, last_x = 0, last_y = 0;
 
 		short maxsp;
 		short maxhp, maxtp;

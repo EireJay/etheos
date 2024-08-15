@@ -811,25 +811,71 @@ void NPC::Killed(Character *from, int amount, int spell_id)
 
 					character->exp = std::min(character->exp, static_cast<int>(this->map->world->config["MaxExp"]));
 
-					while (character->level < static_cast<int>(this->map->world->config["MaxLevel"]) && character->exp >= this->map->world->exp_table[character->level+1])
-					{
-						level_up = true;
-						++character->level;
-						character->statpoints += static_cast<int>(this->map->world->config["StatPerLevel"]);
-						character->skillpoints += static_cast<int>(this->map->world->config["SkillPerLevel"]);
-						character->CalculateStats();
+							// Define a map that maps each race to its corresponding "StatPerLevel" value
+							std::map<int, int> race_stat_map = {
+								{0, 3}, // race 0 gets 3 "StatPerLevel" points
+								{1, 3}, // race 1 gets 3 "StatPerLevel" points
+								{2, 3}, // race 2 gets 3 "StatPerLevel" points
+								{3, 3}, // race 2 gets 3 "StatPerLevel" points
+								{4, 3}, // race 2 gets 3 "StatPerLevel" points
+								{5, 3}, // race 2 gets 3 "StatPerLevel" points
+								{6, 3}, // race 2 gets 3 "StatPerLevel" points
+								{7, 3}, // race 2 gets 3 "StatPerLevel" points
+								{8, 3}, // race 2 gets 3 "StatPerLevel" points
+								{9, 3}, // race 2 gets 3 "StatPerLevel" points
+								{10, 3}, // race 2 gets 3 "StatPerLevel" points
+								// add more races and their corresponding "StatPerLevel" values here
+							};
+
+							
+
+							while (character->level < static_cast<int>(this->map->world->config["MaxLevel"]) && character->exp >= this->map->world->exp_table[character->level+1])
+							{
+								level_up = true;
+								++character->level;
+								int race = character->race; // get the character's race
+
+								// Retrieve the "StatPerLevel" value for the current race
+								int race_stat = race_stat_map[character->race];
+
+								// Add the "StatPerLevel" value to the character's "statpoints" attribute
+								character->statpoints += race_stat;
+								std::map<int, std::map<std::string, int>> raceToStatPerLevel = {
+									{0, {{"str", 0}, {"int", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}}, // race 0 gets 3 "str" points, 2 "int" points, etc.
+									{1, {{"str", 0}, {"int", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}}, 
+									{2, {{"str", 0}, {"int", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}}, 
+									{3, {{"str", 0}, {"int", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}}, 
+									{4, {{"str", 0}, {"int", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}}, 
+									{5, {{"str", 0}, {"int", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}}, 
+									{6, {{"str", 0}, {"int", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}}, 
+									{7, {{"str", 0}, {"int", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}}, 
+									{8, {{"str", 0}, {"int", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}}, 
+									{9, {{"str", 0}, {"int", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}}, 
+									{10, {{"str", 0}, {"int", 0}, {"wis", 0}, {"agi", 0}, {"con", 0}, {"cha", 0}}}, 
+								};
+
+								std::map<std::string, int> statToStatPerLevel = raceToStatPerLevel[race]; // get the map of stats and their corresponding "StatPerLevel" values for the character's race
+								character->str += statToStatPerLevel["str"]; // add the "str" "StatPerLevel" value to the character's str
+								character->intl += statToStatPerLevel["int"]; // add the "int" "StatPerLevel" value to the character's int_
+								character->wis += statToStatPerLevel["wis"]; // add the "wis" "StatPerLevel" value to the character's wis
+								character->agi += statToStatPerLevel["agi"]; // add the "agi" "StatPerLevel" value to the character's agi
+								character->con += statToStatPerLevel["con"]; // add the "con" "StatPerLevel" value to the character's con
+								character->cha += statToStatPerLevel["cha"]; // add the "cha" "StatPerLevel" value to the character's cha
+								//character->statpoints += static_cast<int>(this->map->world->config["StatPerLevel"]);
+								character->skillpoints += static_cast<int>(this->map->world->config["SkillPerLevel"]);
+								character->CalculateStats();
+							}
+							
+							if (level_up)
+							{
+								builder.SetID(spell_id == -1 ? PACKET_NPC : PACKET_CAST, PACKET_ACCEPT);
+								builder.ReserveMore(33);
+							}
+						}
 					}
 
-					if (level_up)
-					{
-						builder.SetID(spell_id == -1 ? PACKET_NPC : PACKET_CAST, PACKET_ACCEPT);
-						builder.ReserveMore(33);
-					}
-				}
-			}
-
-			if (spell_id != -1)
-				builder.AddShort(spell_id);
+					if (spell_id != -1)
+						builder.AddShort(spell_id);
 
 			builder.AddShort(drop_winner ? drop_winner->PlayerID() : from->PlayerID());
 			builder.AddChar(drop_winner ? drop_winner->direction : from->direction);

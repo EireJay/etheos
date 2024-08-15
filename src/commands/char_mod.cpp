@@ -60,7 +60,7 @@ void SetXLimited(const std::vector<std::string>& arguments, Command_Source* from
 			if (title_string.length() > argLength) title_string = title_string.substr(0, argLength);
 			if (limit_string.length() > argLength) limit_string = limit_string.substr(0, argLength);
 		}
-
+		
 		bool appearance = false;
 		bool failure = false;
 		bool level = false;
@@ -108,7 +108,30 @@ void SetXLimited(const std::vector<std::string>& arguments, Command_Source* from
 				else if (level != ADMIN_PLAYER && victim->admin == ADMIN_PLAYER)
 					victim->world->IncAdminCount();
 
-				victim->admin = level;
+			/*		std::string buffer = "Attention! "+util::ucfirst(victim->real_name)+" has been ";
+				buffer += (victim->admin < level) ? "promoted " : "demoted ";
+				buffer += "to ";
+
+				switch (level){
+                    case 0:
+                        buffer += "Player!";
+                        break;
+                    case 1:
+                        buffer += "Light Guide!";
+                        break;
+                    case 2:
+                        buffer += "Guardian!";
+                        break;
+                    case 3:
+                        buffer += "Game Master!";
+                        break;
+                    case 4:
+                        buffer += "High Game Master!";
+                        break;
+				}
+				victim->SourceWorld()->ServerMsg(buffer);
+
+				*/victim->admin = level;
 			}
 			else
 			{

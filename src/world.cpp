@@ -125,6 +125,20 @@ void world_recover(void *world_void)
 			}
 		}
 
+		if (character->hp != character->maxhp && character->race == 7)
+		{
+			if (character->sitting != SIT_STAND) character->hp += static_cast<short>(character->maxhp * double(world->config["SitHPRecoverRate"])*1.15);
+			else                                 character->hp += static_cast<short>(character->maxhp * double(world->config["HPRecoverRate"])*1.15);
+
+			character->hp = std::min(character->hp, character->maxhp);
+			updated = true;
+
+			if (character->party)
+			{
+				character->party->UpdateHP(character);
+			}
+		}
+
 		if (character->tp != character->maxtp)
 		{
 			if (character->sitting != SIT_STAND) character->tp += static_cast<short>(character->maxtp * double(world->config["SitTPRecoverRate"]));
@@ -1615,7 +1629,62 @@ Character *World::CreateCharacter(Player *player, std::string name, Gender gende
 	std::string startmapinfo;
 	std::string startmapval;
 
-	if (static_cast<int>(this->config["StartMap"]))
+	/*if (race == 1)
+	{
+		startmapinfo = ", `map`, `x`, `y`";
+		std::snprintf(buffer, 1024, ",%i,%i,%i", static_cast<int>(this->config["StartMapHuman0"]), static_cast<int>(this->config["StartXHuman0"]), static_cast<int>(this->config["StartYHuman0"]));
+		startmapval = buffer;
+	}
+	else if (race == 2)
+	{
+		startmapinfo = ", `map`, `x`, `y`";
+		std::snprintf(buffer, 1024, ",%i,%i,%i", static_cast<int>(this->config["StartMapElf"]), static_cast<int>(this->config["StartXElf"]), static_cast<int>(this->config["StartYElf"]));
+		startmapval = buffer;
+	}
+	else if (race == 3)
+	{
+		startmapinfo = ", `map`, `x`, `y`";
+		std::snprintf(buffer, 1024, ",%i,%i,%i", static_cast<int>(this->config["StartMapDwarf"]), static_cast<int>(this->config["StartXDwarf"]), static_cast<int>(this->config["StartYDwarf"]));
+		startmapval = buffer;
+	}
+	else if (race == 4)
+	{
+		startmapinfo = ", `map`, `x`, `y`";
+		std::snprintf(buffer, 1024, ",%i,%i,%i", static_cast<int>(this->config["StartMapGnome"]), static_cast<int>(this->config["StartXGnome"]), static_cast<int>(this->config["StartYGnome"]));
+		startmapval = buffer;
+	}
+	else if (race == 5)
+	{
+		startmapinfo = ", `map`, `x`, `y`";
+		std::snprintf(buffer, 1024, ",%i,%i,%i", static_cast<int>(this->config["StartMapHalfling"]), static_cast<int>(this->config["StartXHalfling"]), static_cast<int>(this->config["StartYHalfling"]));
+		startmapval = buffer;
+	}
+	else if (race == 6)
+	{
+		startmapinfo = ", `map`, `x`, `y`";
+		std::snprintf(buffer, 1024, ",%i,%i,%i", static_cast<int>(this->config["StartMapHalfOrc"]), static_cast<int>(this->config["StartXHalfOrc"]), static_cast<int>(this->config["StartYHalfOrc"]));
+		startmapval = buffer;
+	}
+	else if (race == 7)
+	{
+		startmapinfo = ", `map`, `x`, `y`";
+		std::snprintf(buffer, 1024, ",%i,%i,%i", static_cast<int>(this->config["StartMapHalfElf"]), static_cast<int>(this->config["StartXHalfElf"]), static_cast<int>(this->config["StartYHalfElf"]));
+		startmapval = buffer;
+	}
+	else if (race == 8)
+	{
+		startmapinfo = ", `map`, `x`, `y`";
+		std::snprintf(buffer, 1024, ",%i,%i,%i", static_cast<int>(this->config["StartMapGoblin"]), static_cast<int>(this->config["StartXGoblin"]), static_cast<int>(this->config["StartYGoblin"]));
+		startmapval = buffer;
+	}
+	else if (race == 9)
+	{
+		startmapinfo = ", `map`, `x`, `y`";
+		std::snprintf(buffer, 1024, ",%i,%i,%i", static_cast<int>(this->config["StartMapTroll"]), static_cast<int>(this->config["StartXTroll"]), static_cast<int>(this->config["StartYTroll"]));
+		startmapval = buffer;
+	}*/
+	
+	if (static_cast<int>(this->config["StartMap"])) // Remove this if statment if you want to use the above commented out code.
 	{
 		startmapinfo = ", `map`, `x`, `y`";
 		std::snprintf(buffer, 1024, ",%i,%i,%i", static_cast<int>(this->config["StartMap"]), static_cast<int>(this->config["StartX"]), static_cast<int>(this->config["StartY"]));
