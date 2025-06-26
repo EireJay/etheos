@@ -16,7 +16,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 option(EOSERV_WANT_MYSQL "Enables MariaDB/MySQL server database support." ON)
 option(EOSERV_WANT_SQLITE "Enables SQLite3 embedded database support." ON)
-option(EOSERV_WANT_SQLSERVER "Enables Microsoft SQL Server database support." OFF)
+option(EOSERV_WANT_SQLSERVER "Enables Microsoft SQL Server database support." ON)
 
 option(EOSERV_USE_PRECOMPILED_HEADERS "Uses a precompiled header to speed up compilation." ON)
 option(EOSERV_USE_UNITY_BUILD "Compiles multiple source files in one translation unit to speed up compilation." ON)
@@ -203,8 +203,13 @@ set (CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR}/install)
 
 if(EOSERV_WANT_MYSQL)
 	find_package(MariaDB REQUIRED)
-	include_directories(${MARIADB_INCLUDE_DIR})
-	list(APPEND eoserv_LIBRARIES ${MARIADB_LIBRARY})
+
+	# Wrap in quotes to handle spaces like "Program Files"
+	set(SAFE_MARIADB_INCLUDE_DIR "${MARIADB_INCLUDE_DIR}")
+	set(SAFE_MARIADB_LIBRARY "${MARIADB_LIBRARY}")
+
+	include_directories("${SAFE_MARIADB_INCLUDE_DIR}")
+	list(APPEND eoserv_LIBRARIES "${SAFE_MARIADB_LIBRARY}")
 	add_compile_definitions(DATABASE_MYSQL)
 endif()
 
@@ -221,12 +226,17 @@ if(EOSERV_WANT_SQLITE)
 	add_compile_definitions(DATABASE_SQLITE)
 endif()
 
-if(EOSERV_WANT_SQLSERVER)
-	find_package(ODBC REQUIRED)
-	include_directories(${ODBC_INCLUDE_DIRS})
-	list(APPEND eoserv_LIBRARIES ${ODBC_LIBRARIES})
-	add_compile_definitions(DATABASE_SQLSERVER)
+if(EOSERV_WANT_MYSQL)
+	find_package(MariaDB REQUIRED)
+
+	set(SAFE_MARIADB_INCLUDE_DIR "${MARIADB_INCLUDE_DIR}")
+	set(SAFE_MARIADB_LIBRARY "${MARIADB_LIBRARY}")
+
+	include_directories("${SAFE_MARIADB_INCLUDE_DIR}")
+	list(APPEND eoserv_LIBRARIES "${SAFE_MARIADB_LIBRARY}")
+	add_compile_definitions(DATABASE_MYSQL)
 endif()
+
 
 if (NOT EOSERV_WANT_MYSQL AND NOT EOSERV_WANT_SQLITE AND NOT EOSERV_WANT_SQLSERVER)
 	message(FATAL_ERROR "Either MySQL, SQLite, or SQL Server support must be enabled.")
